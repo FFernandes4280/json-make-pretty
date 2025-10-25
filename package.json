@@ -14,9 +14,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "npm run copy-c-files && react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "copy-c-files": "cp ../formatJson.c ./public/ && cp ../formatJson ./public/ 2>/dev/null || true"
   },
   "eslintConfig": {
     "extends": [
