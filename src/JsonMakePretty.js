@@ -166,11 +166,9 @@ const JsonMakePretty = () => {
     const allLines = e.currentTarget.querySelectorAll('.json-line');
     
     let lineIndex = -1;
-    let clickedLineElement = null;
     allLines.forEach((lineElement, index) => {
       if (lineElement === clickedElement || lineElement.contains(clickedElement)) {
         lineIndex = index;
-        clickedLineElement = lineElement;
       }
     });
 
