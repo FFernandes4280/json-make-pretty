@@ -98,187 +98,51 @@
   font-size: 14px;
 }
 
-/* JSON Editor */
-.json-editor {
+/* Monaco Editor Wrapper */
+.monaco-editor-wrapper {
   flex: 1;
-  display: flex;
   border: 2px solid #e1e5e9;
   border-radius: 8px;
   overflow: hidden;
-  background-color: #282c34;
+  background-color: #1e1e1e;
   height: 100%;
   max-height: 100%;
-  pointer-events: auto;
-}
-
-.line-numbers {
-  background-color: #21252b;
-  color: #5c6370;
-  padding-top: 15px;
-  padding-bottom: 15px;
-  padding-left: 10px;
-  padding-right: 10px;
-  text-align: right;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  user-select: none;
-  border-right: 1px solid #181a1f;
-  min-width: 50px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  pointer-events: none;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
-
-.line-numbers::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-.line-number {
-  line-height: 1.5;
-  height: auto;
-}
-
-.json-content {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.json-textarea-invisible {
-  width: 100%;
-  height: 100%;
-  padding: 15px;
-  border: none;
-  background-color: #282c34;
-  color: #abb2bf;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  resize: none;
-  outline: none;
-  overflow-y: auto;
-  overflow-x: auto;
-  box-sizing: border-box;
-}
-
-.json-highlighted {
-  padding: 15px;
-  color: #abb2bf;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  overflow-y: auto;
-  overflow-x: auto;
-  height: 100%;
-  cursor: pointer;
-  box-sizing: border-box;
   position: relative;
 }
-
-.json-line {
-  white-space: pre;
-  min-height: 21px;
-  transition: background-color 0.1s ease;
-}
-
-.json-line:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-/* Different colors for different nesting levels */
-.level-0 {
-  color: #e06c75;
-}
-
-/* Red */
-.level-1 {
-  color: #98c379;
-}
-
-/* Green */
-.level-2 {
-  color: #61afef;
-}
-
-/* Blue */
-.level-3 {
-  color: #c678dd;
-}
-
-/* Purple */
-.level-4 {
-  color: #e5c07b;
-}
-
-/* Yellow */
-.level-5 {
-  color: #56b6c2;
-}
-
-/* Cyan */
 
 /* Path Tooltip - VS Code style inline suggestion */
 .path-tooltip {
   position: absolute;
   background-color: #1e1e1e;
-  color: #858585;
-  padding: 4px 8px;
-  border-radius: 3px;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 4px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 12px;
+  font-size: 13px;
   white-space: nowrap;
-  z-index: 1001;
+  z-index: 9999;
   pointer-events: auto;
   cursor: pointer;
-  transform: translateY(-100%);
-  margin-top: -4px;
-  border: 1px solid #3e3e3e;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  animation: fadeIn 0.15s ease-in;
+  border: 1px solid #4e94ce;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.2s ease-in;
 }
 
 .path-tooltip:hover {
   background-color: #2d2d30;
-  color: #abb2bf;
-  border-color: #4e94ce;
+  color: #4fc3f7;
+  border-color: #64b5f6;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-100%) translateY(-2px);
+    transform: translateY(-5px);
   }
   to {
     opacity: 1;
-    transform: translateY(-100%);
+    transform: translateY(0);
   }
-}
-
-/* Scrollbar styling */
-.json-textarea-invisible::-webkit-scrollbar,
-.json-highlighted::-webkit-scrollbar {
-  width: 8px;
-}
-
-.json-textarea-invisible::-webkit-scrollbar-track,
-.json-highlighted::-webkit-scrollbar-track {
-  background: #21252b;
-}
-
-.json-textarea-invisible::-webkit-scrollbar-thumb,
-.json-highlighted::-webkit-scrollbar-thumb {
-  background: #3e4451;
-  border-radius: 4px;
-}
-
-.json-textarea-invisible::-webkit-scrollbar-thumb:hover,
-.json-highlighted::-webkit-scrollbar-thumb:hover {
-  background: #4e5361;
 }
 
 /* Responsive design */

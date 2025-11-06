@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import Editor from '@monaco-editor/react';
 import './JsonMakePretty.css';
 
 const JsonMakePretty = () => {
@@ -8,7 +9,7 @@ const JsonMakePretty = () => {
   const [selectedPath, setSelectedPath] = useState('');
   const [showPathPopup, setShowPathPopup] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
-  const outputRef = useRef(null);
+  const outputEditorRef = useRef(null);
 
   const prettifyJson = (jsonString) => {
     try {
@@ -28,10 +29,9 @@ const JsonMakePretty = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setInputJson(value);
-    prettifyJson(value);
+  const handleInputChange = (value) => {
+    setInputJson(value || '');
+    prettifyJson(value || '');
   };
 
   const clearAll = () => {
@@ -40,12 +40,6 @@ const JsonMakePretty = () => {
     setError('');
     setShowPathPopup(false);
     setSelectedPath('');
-  };
-
-  const copyToClipboard = () => {
-    if (outputJson) {
-      navigator.clipboard.writeText(outputJson);
-    }
   };
 
   const copyPathToClipboard = () => {
@@ -160,107 +154,81 @@ const JsonMakePretty = () => {
     return path.join('.');
   };
 
-  const handleOutputClick = (e) => {
-    // Find which line was clicked
-    const clickedElement = e.target;
-    const allLines = e.currentTarget.querySelectorAll('.json-line');
+  const handleOutputEditorMount = (editor) => {
+    outputEditorRef.current = editor;
     
-    let lineIndex = -1;
-    allLines.forEach((lineElement, index) => {
-      if (lineElement === clickedElement || lineElement.contains(clickedElement)) {
-        lineIndex = index;
+    // Add click listener to the editor
+    editor.onMouseUp((e) => {
+      const position = e.target.position;
+      
+      console.log('Click event:', e);
+      console.log('Position:', position);
+      
+      if (!position) {
+        console.log('No position found');
+        return;
+      }
+      
+      const lineIndex = position.lineNumber - 1;
+      
+      // Get content directly from the editor model
+      const model = editor.getModel();
+      if (!model) {
+        console.log('No model found');
+        return;
+      }
+      
+      const content = model.getValue();
+      const lines = content.split('\n');
+      
+      console.log('Line index:', lineIndex);
+      console.log('Total lines:', lines.length);
+      console.log('Content:', content);
+      
+      if (lineIndex >= lines.length || lineIndex < 0) {
+        console.log('Line index out of bounds');
+        return;
+      }
+      
+      const path = getJsonPath(lines, lineIndex);
+      console.log('Generated path:', path);
+      
+      if (path) {
+        setSelectedPath(path);
+        setShowPathPopup(true);
+        
+        // Get the actual line position in the editor
+        const lineHeight = 19; // Monaco's default line height
+        const topPadding = 10;
+        const scrollTop = editor.getScrollTop();
+        
+        // Calculate position relative to viewport
+        const lineTopPosition = (lineIndex * lineHeight) - scrollTop + topPadding;
+        
+        console.log('Tooltip position:', { x: 60, y: lineTopPosition });
+        
+        setPopupPosition({
+          x: 60, // After line numbers
+          y: lineTopPosition
+        });
+      } else {
+        console.log('No path generated for this line');
       }
     });
-
-    if (lineIndex === -1) return;
-
-    const lines = outputJson.split('\n');
-    const path = getJsonPath(lines, lineIndex);
     
-    if (path) {
-      setSelectedPath(path);
-      setShowPathPopup(true);
-      
-      // Position tooltip above the clicked line
-      // Calculate the offset of the line within the container without considering scroll
-      const lineHeight = 21; // line-height: 1.5 * 14px font-size
-      const paddingTop = 15; // padding-top of .json-highlighted
-      
-      // The y position should be relative to the container's content, accounting for line index
-      const yPosition = paddingTop + (lineIndex * lineHeight);
-      
-      setPopupPosition({
-        x: 15, // Fixed at the left edge of the content (matches padding)
-        y: yPosition
-      });
-    }
-  };
-
-  const handleScroll = (e) => {
-    // Hide tooltip on scroll in output
-    if (showPathPopup) {
-      setShowPathPopup(false);
-    }
-  };
-
-  const renderJsonWithLineNumbers = (text, isOutput = false) => {
-    return (
-      <div className="json-editor">
-        <div className="json-content">
-          {isOutput ? (
-            text ? renderHighlightedJson(text) : <div className="json-highlighted"></div>
-          ) : (
-            <textarea
-              value={text}
-              onChange={handleInputChange}
-              onScroll={handleScroll}
-              placeholder="Paste your JSON here..."
-              className="json-textarea-invisible"
-              spellCheck="false"
-            />
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  const renderHighlightedJson = (jsonString) => {
-    const lines = jsonString.split('\n');
-    const highlighted = lines.map((line, index) => {
-      const indent = line.search(/\S/);
-      const level = Math.floor(indent / 2);
-      const colorClass = `level-${level % 6}`;
-      
-      return (
-        <div key={index} className={`json-line ${colorClass}`}>
-          {line}
-        </div>
-      );
+    // Hide tooltip on scroll
+    editor.onDidScrollChange(() => {
+      if (showPathPopup) {
+        setShowPathPopup(false);
+      }
     });
-
-    return (
-      <div 
-        className="json-highlighted" 
-        onClick={handleOutputClick}
-        onScroll={handleScroll}
-        ref={outputRef}
-      >
-        {highlighted}
-        {showPathPopup && (
-          <div 
-            className="path-tooltip" 
-            style={{ 
-              left: `${popupPosition.x}px`, 
-              top: `${popupPosition.y}px` 
-            }}
-            onClick={copyPathToClipboard}
-            title="Click to copy"
-          >
-            {selectedPath}
-          </div>
-        )}
-      </div>
-    );
+    
+    // Hide tooltip on any content change
+    editor.onDidChangeModelContent(() => {
+      if (showPathPopup) {
+        setShowPathPopup(false);
+      }
+    });
   };
 
   return (
@@ -271,26 +239,68 @@ const JsonMakePretty = () => {
           <button onClick={clearAll} className="btn btn-clear">
             Clear All
           </button>
-          <button 
-            onClick={copyToClipboard} 
-            className="btn btn-copy"
-            disabled={!outputJson}
-          >
-            Copy Result
-          </button>
         </div>
       </header>
       
       <div className="content">
         <div className="input-section">
           <h3>JSON Input</h3>
-          {renderJsonWithLineNumbers(inputJson, false)}
+          <div className="monaco-editor-wrapper">
+            <Editor
+              height="100%"
+              defaultLanguage="json"
+              value={inputJson}
+              onChange={handleInputChange}
+              theme="vs-dark"
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                lineNumbers: 'on',
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                tabSize: 2,
+                wordWrap: 'off',
+              }}
+            />
+          </div>
         </div>
         
         <div className="output-section">
           <h3>Prettified JSON</h3>
           {error && <div className="error-message">{error}</div>}
-          {renderJsonWithLineNumbers(outputJson, true)}
+          <div className="monaco-editor-wrapper" style={{ position: 'relative' }}>
+            <Editor
+              height="100%"
+              defaultLanguage="json"
+              value={outputJson}
+              theme="vs-dark"
+              onMount={handleOutputEditorMount}
+              options={{
+                readOnly: true,
+                minimap: { enabled: false },
+                fontSize: 14,
+                lineNumbers: 'on',
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                tabSize: 2,
+                wordWrap: 'off',
+                domReadOnly: true,
+              }}
+            />
+            {showPathPopup && (
+              <div 
+                className="path-tooltip" 
+                style={{ 
+                  left: `${popupPosition.x}px`, 
+                  top: `${popupPosition.y}px` 
+                }}
+                onClick={copyPathToClipboard}
+                title="Click to copy"
+              >
+                {selectedPath}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
