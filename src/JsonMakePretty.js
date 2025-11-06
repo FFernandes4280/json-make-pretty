@@ -163,6 +163,7 @@ const JsonMakePretty = () => {
       
       console.log('Click event:', e);
       console.log('Position:', position);
+      console.log('Mouse event:', e.event);
       
       if (!position) {
         console.log('No position found');
@@ -183,7 +184,6 @@ const JsonMakePretty = () => {
       
       console.log('Line index:', lineIndex);
       console.log('Total lines:', lines.length);
-      console.log('Content:', content);
       
       if (lineIndex >= lines.length || lineIndex < 0) {
         console.log('Line index out of bounds');
@@ -192,27 +192,37 @@ const JsonMakePretty = () => {
       
       const path = getJsonPath(lines, lineIndex);
       console.log('Generated path:', path);
+      console.log('Clicked line content:', lines[lineIndex]);
       
       if (path) {
         setSelectedPath(path);
         setShowPathPopup(true);
         
-        // Get the actual line position in the editor
-        const lineHeight = 19; // Monaco's default line height
-        const topPadding = 10;
-        const scrollTop = editor.getScrollTop();
+        // Get the DOM node of the editor to calculate relative position
+        const editorDomNode = editor.getDomNode();
+        if (!editorDomNode) return;
         
-        // Calculate position relative to viewport
-        const lineTopPosition = (lineIndex * lineHeight) - scrollTop + topPadding;
+        const editorRect = editorDomNode.getBoundingClientRect();
         
-        console.log('Tooltip position:', { x: 60, y: lineTopPosition });
+        // Use the actual mouse position relative to the editor
+        const mouseX = e.event.posx || e.event.clientX;
+        const mouseY = e.event.posy || e.event.clientY;
+        
+        // Calculate position relative to the editor container
+        const relativeX = 60; // Fixed position after line numbers
+        const relativeY = mouseY - editorRect.top;
+        
+        console.log('Editor rect:', editorRect);
+        console.log('Mouse position:', { x: mouseX, y: mouseY });
+        console.log('Tooltip position:', { x: relativeX, y: relativeY });
         
         setPopupPosition({
-          x: 60, // After line numbers
-          y: lineTopPosition
+          x: relativeX,
+          y: relativeY
         });
       } else {
         console.log('No path generated for this line');
+        console.log('Line content:', lines[lineIndex]);
       }
     });
     
