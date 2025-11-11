@@ -9,6 +9,7 @@ const JsonMakePretty = () => {
   const [selectedPath, setSelectedPath] = useState('');
   const [showPathPopup, setShowPathPopup] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
+  const [indentSpaces, setIndentSpaces] = useState(2);
   const outputEditorRef = useRef(null);
 
   const prettifyJson = (jsonString) => {
@@ -20,7 +21,7 @@ const JsonMakePretty = () => {
       }
       
       const parsed = JSON.parse(jsonString);
-      const prettified = JSON.stringify(parsed, null, 2);
+      const prettified = JSON.stringify(parsed, null, indentSpaces);
       setOutputJson(prettified);
       setError('');
     } catch (err) {
@@ -32,6 +33,14 @@ const JsonMakePretty = () => {
   const handleInputChange = (value) => {
     setInputJson(value || '');
     prettifyJson(value || '');
+  };
+
+  const handleIndentChange = (e) => {
+    const value = parseInt(e.target.value);
+    setIndentSpaces(value);
+    if (inputJson) {
+      prettifyJson(inputJson);
+    }
   };
 
   const clearAll = () => {
@@ -174,7 +183,7 @@ const JsonMakePretty = () => {
         
         const editorRect = editorDomNode.getBoundingClientRect();
         
-        const mouseX = e.event.posx || e.event.clientX;
+        // const mouseX = e.event.posx || e.event.clientX;
         const mouseY = e.event.posy || e.event.clientY;
         
         const relativeX = 60;
@@ -202,18 +211,31 @@ const JsonMakePretty = () => {
 
   return (
     <div className="json-make-pretty">
-      <header className="header">
-        <h1>JSON Make Pretty</h1>
-        <div className="controls">
-          <button onClick={clearAll} className="btn btn-clear">
-            Clear All
-          </button>
+      <div className="controls-bar">
+        <div className="section-label">JSON Input</div>
+        <div className="indent-control">
+          <label htmlFor="indent-spaces">Indent:</label>
+          <select
+            id="indent-spaces"
+            value={indentSpaces}
+            onChange={handleIndentChange}
+            className="indent-select"
+          >
+            <option value={2}>2 spaces</option>
+            <option value={4}>4 spaces</option>
+            <option value={6}>6 spaces</option>
+            <option value={8}>8 spaces</option>
+          </select>
         </div>
-      </header>
+        <div className="section-label">Prettified JSON</div>
+      </div>
+      
+      <button onClick={clearAll} className="btn-clear-floating" title="Clear All">
+        ×
+      </button>
       
       <div className="content">
         <div className="input-section">
-          <h3>JSON Input</h3>
           <div className="monaco-editor-wrapper">
             <Editor
               height="100%"
@@ -235,7 +257,6 @@ const JsonMakePretty = () => {
         </div>
         
         <div className="output-section">
-          <h3>Prettified JSON</h3>
           {error && <div className="error-message">{error}</div>}
           <div className="monaco-editor-wrapper" style={{ position: 'relative' }}>
             <Editor

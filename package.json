@@ -2,7 +2,7 @@
   "name": "json-make-pretty",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://FFernandes4280.github.io/json-make-pretty",
+  "homepage": ".",
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "react": "^19.2.0",
