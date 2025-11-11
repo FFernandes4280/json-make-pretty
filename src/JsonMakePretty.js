@@ -12,7 +12,7 @@ const JsonMakePretty = () => {
   const [indentSpaces, setIndentSpaces] = useState(2);
   const outputEditorRef = useRef(null);
 
-  const prettifyJson = (jsonString) => {
+  const prettifyJson = (jsonString, spaces = indentSpaces) => {
     try {
       if (!jsonString.trim()) {
         setOutputJson('');
@@ -21,7 +21,7 @@ const JsonMakePretty = () => {
       }
       
       const parsed = JSON.parse(jsonString);
-      const prettified = JSON.stringify(parsed, null, indentSpaces);
+      const prettified = JSON.stringify(parsed, null, spaces);
       setOutputJson(prettified);
       setError('');
     } catch (err) {
@@ -39,7 +39,7 @@ const JsonMakePretty = () => {
     const value = parseInt(e.target.value);
     setIndentSpaces(value);
     if (inputJson) {
-      prettifyJson(inputJson);
+      prettifyJson(inputJson, value);
     }
   };
 
